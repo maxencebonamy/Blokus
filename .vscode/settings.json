@@ -4,7 +4,9 @@
 		"editor.formatOnSave": true,
 		"editor.codeActionsOnSave": {
 			"source.unusedImports": "always"
-		}
+		},
+		"editor.tabSize": 4,
+		"editor.insertSpaces": true
 	},
 	"python.languageServer": "Pylance",
 	"autopep8.args": ["--max-line-length", "150", "--experimental"]
