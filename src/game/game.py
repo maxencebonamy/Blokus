@@ -1,8 +1,8 @@
 import pygame
-from utils.colors import Colors
+
 from game.board import Board
 from game.score_label import ScoreLabel
-
+from utils.colors import Colors
 
 class Game:
 
