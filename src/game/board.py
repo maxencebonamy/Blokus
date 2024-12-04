@@ -25,3 +25,12 @@ class Board:
     def draw(self, screen, x, y):
         for cell in self.cells:
             cell.draw(screen, x, y)
+
+    def search_cell(self, x, y):
+        index = y * Board.SIZE + x
+        return self.cells[index]
+    
+    def place_piece(self, piece, x, y):
+        for bloc in piece.blocs:
+            cell = self.search_cell(x + bloc[0], y + bloc[1])
+            cell.set_color(piece.color)
