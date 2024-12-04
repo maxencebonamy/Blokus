@@ -1,0 +1,11 @@
+{
+	"[python]": {
+		"editor.defaultFormatter": "ms-python.autopep8",
+		"editor.formatOnSave": true,
+		"editor.codeActionsOnSave": {
+			"source.unusedImports": "always"
+		}
+	},
+	"python.languageServer": "Pylance",
+	"autopep8.args": ["--max-line-length", "150", "--experimental"]
+}
