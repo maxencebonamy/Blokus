@@ -42,7 +42,7 @@ class Player:
     def count_score(self):
         score = 0
         for piece in self.pieces:
-            score += piece.get_points()
+            score -= piece.get_points()
         return score
 
     def remove_piece(self, piece):

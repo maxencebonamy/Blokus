@@ -37,3 +37,9 @@ class Game:
             self.board.draw(self.screen)
 
             pygame.display.flip()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Clic gauche
+                    mouse_x, mouse_y = event.pos
+                    self.board.handle_click(mouse_x, mouse_y)
