@@ -1,4 +1,6 @@
 import pygame
+from utils.colors import Colors
+from utils.fonts import create_text
 
 
 class Game:
@@ -6,12 +8,9 @@ class Game:
     def __init__(self):
         pygame.init()
 
-        self.screen = pygame.display.set_mode((800, 600))
+        self.screen = pygame.display.set_mode((1200, 800))
 
-        BLACK = (0, 0, 0)
-
-        font = pygame.font.Font(None, 36)
-        self.text = font.render("Hello, World!", True, BLACK)
+        self.text = create_text("Hello, World!", 36, Colors.BLACK.value)
 
         self.text_rect = self.text.get_rect()
         self.text_rect.centerx = self.screen.get_rect().centerx
@@ -24,7 +23,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     running = False
 
-            self.screen.fill((255, 255, 255))
+            self.screen.fill(Colors.WHITE.value)
             self.screen.blit(self.text, self.text_rect)
 
             pygame.display.flip()
