@@ -35,4 +35,11 @@ class Board:
     def place_piece(self, piece, x, y):
         for bloc in piece.blocs:
             cell = self.search_cell(x + bloc[0], y + bloc[1])
+            if cell.color != Colors.WHITE.value:
+                return False
+
+        for bloc in piece.blocs:
+            cell = self.search_cell(x + bloc[0], y + bloc[1])
             cell.set_color(piece.color)
+
+        return True
