@@ -1,6 +1,7 @@
 import pygame
 from utils.colors import Colors
 from game.board import Board
+from game.score_label import ScoreLabel
 
 
 class Game:
@@ -13,12 +14,10 @@ class Game:
 
         self.screen = pygame.display.set_mode((Game.WIDTH, Game.HEIGHT))
 
-        # self.text = create_text("Hello, World!", 36, Colors.BLACK.value)
-        # self.text_rect = self.text.get_rect()
-        # self.text_rect.centerx = self.screen.get_rect().centerx
-        # self.text_rect.centery = self.screen.get_rect().centery
+        self.orange_score_label = ScoreLabel(Colors.ORANGE.value, 0)
+        self.purple_score_label = ScoreLabel(Colors.PURPLE.value, 0)
 
-        self.board = Board()
+        self.board = Board(self)
 
     def run(self):
         running = True
@@ -28,10 +27,13 @@ class Game:
                     running = False
 
             self.screen.fill(Colors.WHITE.value)
-            # self.screen.blit(self.text, self.text_rect)
 
-            dx = (Game.WIDTH - self.board.compute_size) // 2
-            dy = (Game.HEIGHT - self.board.compute_size) // 2
-            self.board.draw(self.screen, dx, dy)
+            self.orange_score_label.draw(
+                self.screen, self.board.x // 2, self.board.y * 2
+            )
+            self.purple_score_label.draw(
+                self.screen, self.board.x + self.board.compute_size() + self.board.x // 2, self.board.y * 2
+            )
+            self.board.draw(self.screen)
 
             pygame.display.flip()

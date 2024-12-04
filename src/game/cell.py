@@ -16,7 +16,7 @@ class Cell:
     def set_color(self, color):
         self.color = color
 
-    def draw(self, screen, x, y):
-        display_rect = self.rect.move(x, y)
+    def draw(self, screen, board_x, board_y):
+        display_rect = self.rect.move(board_x, board_y)
         pygame.draw.rect(screen, self.color, display_rect)
         pygame.draw.rect(screen, Colors.BLACK.value, display_rect, 1)
