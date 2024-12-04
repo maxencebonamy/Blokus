@@ -46,6 +46,15 @@ class Player:
         self.score += score
         self.label = ScoreLabel(self.color, self.score)
 
+    def update_score(self):
+        self.score += self.count_score()
+
+    def count_score(self):
+        score = 0
+        for piece in self.pieces:
+            score -= piece.get_points()
+        return score
+
     def remove_piece(self, piece):
         if piece in self.pieces:
             self.pieces.remove(piece)
