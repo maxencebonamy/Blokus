@@ -1,5 +1,6 @@
 from game.cell import Cell
 from utils.colors import Colors
+import random
 
 
 class Board:
@@ -11,8 +12,16 @@ class Board:
         for x in range(0, Board.SIZE):
             for y in range(0, Board.SIZE):
                 self.cells.append(Cell(x, y))
-        self.cells[0].set_color(Colors.RED.value)
 
-    def draw(self, screen):
+        for _ in range(0, 10):
+            self.cells[random.randint(0, len(self.cells) - 1)].set_color(Colors.PURPLE.value)
+        for _ in range(0, 10):
+            self.cells[random.randint(0, len(self.cells) - 1)].set_color(Colors.ORANGE.value)
+
+    @property
+    def compute_size(self):
+        return Board.SIZE * Cell.SIZE
+
+    def draw(self, screen, x, y):
         for cell in self.cells:
-            cell.draw(screen)
+            cell.draw(screen, x, y)
