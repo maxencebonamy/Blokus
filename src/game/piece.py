@@ -8,7 +8,7 @@ class Piece:
     def set_color(self, color):
         self.color = color
 
-    def setBloc(self, blocs):
+    def set_bloc(self, blocs):
         self.blocs = blocs
 
     def rotate(self, clockwise=True):
@@ -35,3 +35,4 @@ class Piece:
             result[y - min_y][x - min_x] = "■"
 
         return "\n".join("".join(row) for row in result)
+
