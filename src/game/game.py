@@ -1,8 +1,10 @@
 import pygame
 
+from game.player import Player
 from game.board import Board
-from game.score_label import ScoreLabel
+from game.pieces_panel import PiecesPanel
 from utils.colors import Colors
+
 
 class Game:
 
@@ -14,8 +16,8 @@ class Game:
 
         self.screen = pygame.display.set_mode((Game.WIDTH, Game.HEIGHT))
 
-        self.orange_score_label = ScoreLabel(Colors.ORANGE.value, 0)
-        self.purple_score_label = ScoreLabel(Colors.PURPLE.value, 0)
+        self.orange_player = Player(Colors.ORANGE.value)
+        self.purple_player = Player(Colors.PURPLE.value)
 
         self.board = Board(self)
 
@@ -25,14 +27,24 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        self.purple_player.add_score(1)
+                        self.orange_player.add_score(1)
 
             self.screen.fill(Colors.WHITE.value)
 
-            self.orange_score_label.draw(
-                self.screen, self.board.x // 2, self.board.y * 2
+            self.orange_player.label.draw(
+                self.screen, self.board.x // 2, 60
             )
-            self.purple_score_label.draw(
-                self.screen, self.board.x + self.board.compute_size() + self.board.x // 2, self.board.y * 2
+            self.orange_player.pieces_panel.draw(
+                self.screen, (self.board.x - PiecesPanel.WIDTH) // 2, 100
+            )
+            self.purple_player.label.draw(
+                self.screen, self.board.x + self.board.compute_size() + self.board.x // 2, 60
+            )
+            self.purple_player.pieces_panel.draw(
+                self.screen, self.board.x + self.board.compute_size() + (self.board.x - PiecesPanel.WIDTH) // 2, 100
             )
             self.board.draw(self.screen)
 

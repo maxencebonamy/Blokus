@@ -12,8 +12,8 @@ class Board:
         self.y = (game.HEIGHT - self.compute_size()) // 2
 
         self.cells = []
-        for i in range(0, Board.SIZE):
-            for j in range(0, Board.SIZE):
+        for j in range(0, Board.SIZE):
+            for i in range(0, Board.SIZE):
                 self.cells.append(Cell(i, j))
 
         for _ in range(0, 10):

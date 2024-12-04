@@ -1,5 +1,10 @@
+import pygame
+
 
 class Piece:
+
+    BLOC_SIZE = 10
+    SIZE = BLOC_SIZE * 6
 
     def __init__(self, color, blocs):
         self.color = color
@@ -20,6 +25,11 @@ class Piece:
     def get_points(self):
         return self.blocs.__len__()
 
+    def draw(self, screen, x, y):
+        for bloc in self.blocs:
+            pygame.draw.rect(screen, self.color, (x + (bloc[0] + 2) * Piece.BLOC_SIZE,
+                             y + (bloc[1] + 2) * Piece.BLOC_SIZE, Piece.BLOC_SIZE, Piece.BLOC_SIZE))
+
     def __str__(self):
         min_x = min(x for x, y in self.blocs)
         max_x = max(x for x, y in self.blocs)
@@ -35,4 +45,3 @@ class Piece:
             result[y - min_y][x - min_x] = "■"
 
         return "\n".join("".join(row) for row in result)
-
