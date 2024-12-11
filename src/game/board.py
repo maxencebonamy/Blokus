@@ -217,7 +217,7 @@ class Board:
             self.occupied_cells.clear()
             for bloc in self.preview_piece.blocs:
                 cell = self.search_cell(self.preview_position[0] + bloc[0], self.preview_position[1] + bloc[1])
-                if cell.color != Colors.WHITE.value:
+                if cell is not None and cell.color != Colors.WHITE.value:
                     self.occupied_cells[(self.preview_position[0] + bloc[0], self.preview_position[1] + bloc[1])] = cell.color
                     print(self.occupied_cells)
 
@@ -228,6 +228,6 @@ class Board:
             self.occupied_cells.clear()
             for bloc in self.preview_piece.blocs:
                 cell = self.search_cell(self.preview_position[0] + bloc[0], self.preview_position[1] + bloc[1])
-                if cell.color != Colors.WHITE.value:
+                if cell is not None and cell.color != Colors.WHITE.value:
                     self.occupied_cells[(self.preview_position[0] + bloc[0], self.preview_position[1] + bloc[1])] = cell.color
                     print(self.occupied_cells)
