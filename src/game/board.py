@@ -67,6 +67,10 @@ class Board:
         return self.search_cell(x, y).color
 
     def place_piece(self, piece, x, y):
+        if piece not in self.game.current_player.get_available_pieces():
+            print("Error : this piece isn't available.")
+            return False
+
         for bloc in piece.blocs:
             cell = self.search_cell(x + bloc[0], y + bloc[1])
             if cell is None:
@@ -84,6 +88,7 @@ class Board:
             cell.set_color(piece.color)
 
         self.game.current_player.add_score(piece.get_points())
+        self.game.current_player.remove_piece(self.preview_piece)
         self.game.switch_player()
         return True
 
@@ -146,22 +151,22 @@ class Board:
                 return True
         return False
 
-    def handle_click(self, mouse_x, mouse_y, player):
+    def handle_click(self, mouse_x, mouse_y):
         # Check if the click is on the left panel
         if 0 <= mouse_x < self.x and 0 <= mouse_y < Board.SIZE * Cell.SIZE:
-            selected_piece = self.handle_click_panel(mouse_x, mouse_y, player)
+            selected_piece = self.handle_click_panel(mouse_x, mouse_y)
             if selected_piece:
                 self.preview_piece = selected_piece
         # Check if the click is on the right panel
         elif self.x + self.compute_size() <= mouse_x < self.x + self.compute_size() + self.x and 0 <= mouse_y < Board.SIZE * Cell.SIZE:
-            selected_piece = self.handle_click_panel(mouse_x, mouse_y, player)
+            selected_piece = self.handle_click_panel(mouse_x, mouse_y)
             if selected_piece:
                 self.preview_piece = selected_piece
         else:
             # Otherwise, handle the click on the grid
-            self.handle_click_grid(mouse_x, mouse_y, player)
+            self.handle_click_grid(mouse_x, mouse_y)
 
-    def handle_click_grid(self, mouse_x, mouse_y, player):
+    def handle_click_grid(self, mouse_x, mouse_y):
         if self.preview_piece is None:
             return
 
@@ -172,7 +177,6 @@ class Board:
             if self.preview_position == (grid_x, grid_y):
                 # Validate the position if the user clicks again on the same cell
                 if self.place_piece(self.preview_piece, grid_x, grid_y):
-                    player.remove_piece(self.preview_piece)
                     self.preview_piece = None
                     self.preview_position = None
             else:
@@ -199,8 +203,8 @@ class Board:
                     else:
                         preview_cell.set_color(self.occupied_cells.get((preview_x, preview_y)))
 
-    def handle_click_panel(self, mouse_x, mouse_y, player):
-        piece = player.pieces_panel.get_piece_at(mouse_x, mouse_y)
+    def handle_click_panel(self, mouse_x, mouse_y):
+        piece = self.game.current_player.pieces_panel.get_piece_at(mouse_x, mouse_y)
         if piece:
             return piece
         return None
