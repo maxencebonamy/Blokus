@@ -75,6 +75,7 @@ class Board:
                 return False
             cell.set_color(piece.color)
 
+        self.game.current_player.add_score(piece.get_points())
         self.game.switch_player()
         return True
 
