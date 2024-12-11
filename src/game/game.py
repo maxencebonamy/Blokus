@@ -54,4 +54,8 @@ class Game:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Clic gauche
                     mouse_x, mouse_y = event.pos
-                    self.board.handle_click(mouse_x, mouse_y)
+                    self.board.handle_click(mouse_x, mouse_y, self.purple_player)
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
+                    self.board.handle_right_button()
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
+                    self.board.handle_left_button()
