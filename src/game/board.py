@@ -1,3 +1,5 @@
+import pygame
+
 from game.cell import Cell
 from game.piece import Piece
 from utils.colors import Colors
@@ -119,17 +121,23 @@ class Board:
         return True
 
     def handle_click(self, mouse_x, mouse_y, player):
-        # Vérifier si le clic est sur le panneau de pièces
-        if 0 > mouse_x > Board.SIZE and 0 > mouse_y > Board.SIZE:
-            # Appeler handle_click_panel pour gérer le clic sur le panneau
+        # Check if the click is on the left panel
+        if 0 <= mouse_x < self.x and 0 <= mouse_y < Board.SIZE * Cell.SIZE:
+            print("Click on the left panel")
             selected_piece = self.handle_click_panel(mouse_x, mouse_y, player)
             if selected_piece:
                 self.preview_piece = selected_piece
-                print(f"Pièce sélectionnée : {selected_piece}")
+                print(f"Piece selected: {selected_piece}")
+        # Check if the click is on the right panel
+        elif self.x + self.compute_size() <= mouse_x < self.x + self.compute_size() + self.x and 0 <= mouse_y < Board.SIZE * Cell.SIZE:
+            print("Click on the right panel")
+            selected_piece = self.handle_click_panel(mouse_x, mouse_y, player)
+            if selected_piece:
+                self.preview_piece = selected_piece
+                print(f"Piece selected: {selected_piece}")
         else:
-            # Sinon, gérer le clic sur la grille
+            # Otherwise, handle the click on the grid
             self.handle_click_grid(mouse_x, mouse_y)
-
 
     def handle_click_grid(self, mouse_x, mouse_y):
         grid_x = (mouse_x - self.x) // Cell.SIZE
