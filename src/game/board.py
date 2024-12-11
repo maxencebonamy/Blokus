@@ -1,8 +1,6 @@
-import pygame
 
 from game.cell import Cell
 from utils.colors import Colors
-from game.piece import Piece
 
 
 class Board:
@@ -38,8 +36,8 @@ class Board:
             for bloc in self.preview_piece.blocs:
                 preview_x = x + bloc[0]
                 preview_y = y + bloc[1]
-                if 0 <= preview_x < Board.SIZE and 0 <= preview_y < Board.SIZE:
-                    preview_cell = self.search_cell(preview_x, preview_y)
+                preview_cell = self.search_cell(preview_x, preview_y)
+                if preview_cell:
                     preview_cell.set_color(self.lighten_color(self.preview_piece.color))
 
     @staticmethod
@@ -47,23 +45,24 @@ class Board:
         return tuple(min(c + 180, 250) for c in color)
 
     def search_cell(self, x, y):
-        index = y * Board.SIZE + x
-        return self.cells[index]
+        if 0 <= x < Board.SIZE and 0 <= y < Board.SIZE:
+            index = y * Board.SIZE + x
+            return self.cells[index]
+        return None
 
     def get_cell_color(self, x, y):
         if (x, y) in self.occupied_cells.keys():
             return self.occupied_cells[(x, y)]
+        cell = self.search_cell(x, y)
+        if cell is None:
+            return None
         return self.search_cell(x, y).color
 
     def place_piece(self, piece, x, y):
         for bloc in piece.blocs:
-
-            # Cell is out of the board [CHECK]
-            if (x + bloc[0] < 0 or x + bloc[0] >= Board.SIZE or y + bloc[1] < 0 or y + bloc[1] >= Board.SIZE):
-                return False
-
-            # Cell is not empty [CHECK]
             cell = self.search_cell(x + bloc[0], y + bloc[1])
+            if cell is None:
+                return False
             if not cell.is_empty() or (x + bloc[0], y + bloc[1]) in self.occupied_cells.keys():
                 return False
 
@@ -72,6 +71,8 @@ class Board:
 
         for bloc in piece.blocs:
             cell = self.search_cell(x + bloc[0], y + bloc[1])
+            if cell is None:
+                return False
             cell.set_color(piece.color)
 
         self.game.switch_player()
@@ -81,7 +82,7 @@ class Board:
         not_covered_points = []
         for starting_point in self.starting_points:
             cell = self.search_cell(starting_point[0], starting_point[1])
-            if cell.is_empty():
+            if cell is not None and cell.is_empty():
                 not_covered_points.append(starting_point)
         if len(not_covered_points) > 0:
             return True
@@ -129,7 +130,7 @@ class Board:
         not_covered_points = []
         for starting_point in self.starting_points:
             cell = self.search_cell(starting_point[0], starting_point[1])
-            if cell.is_empty():
+            if cell is not None and cell.is_empty():
                 not_covered_points.append(starting_point)
         if len(not_covered_points) == 0:
             return True
@@ -184,7 +185,7 @@ class Board:
                 self.occupied_cells.clear()
                 for bloc in self.preview_piece.blocs:
                     cell = self.search_cell(grid_x + bloc[0], grid_y + bloc[1])
-                    if cell.color != Colors.WHITE.value:
+                    if cell is not None and cell.color != Colors.WHITE.value:
                         self.occupied_cells[(grid_x + bloc[0], grid_y + bloc[1])] = cell.color
                         print(self.occupied_cells)
 
