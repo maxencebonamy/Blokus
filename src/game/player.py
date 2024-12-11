@@ -29,7 +29,7 @@ class Player:
         pieces.add(Piece(self.color, [(0, 0), (-1, 0), (0, 1), (1, 1)]))
         pieces.add(Piece(self.color, [(0, 0), (0, -1), (0, -2), (0, 1), (0, 2)]))
         pieces.add(Piece(self.color, [(0, 0), (-1, -1), (0, -1), (0, -1), (0, -2)]))
-        pieces.add(Piece(self.color, [(0, 0), (0, -1), (0, -2), (1, 0), (2, 0)]))
+        pieces.add(Piece(self.color, [(0, 0), (0, -1), (-1, -1), (0, 1), (-1, 1)]))
         pieces.add(Piece(self.color, [(0, 0), (-1, 0), (-1, 1), (0, -1), (0, -2)]))
         pieces.add(Piece(self.color, [(0, 0), (0, -1), (0, 1), (-1, 0), (-1, 1)]))
         pieces.add(Piece(self.color, [(0, 0), (0, -1), (0, 1), (-1, -1), (1, 1)]))
