@@ -19,11 +19,6 @@ class Board:
             for i in range(0, Board.SIZE):
                 self.cells.append(Cell(i, j))
 
-        # for _ in range(0, 10):
-        #     self.cells[random.randint(0, len(self.cells) - 1)].set_color(Colors.PURPLE.value)
-        # for _ in range(0, 10):
-        #     self.cells[random.randint(0, len(self.cells) - 1)].set_color(Colors.ORANGE.value)
-
         self.preview_piece = None
         self.preview_position = None
         self.selected_piece = None
@@ -137,9 +132,13 @@ class Board:
                 print(f"Piece selected: {selected_piece}")
         else:
             # Otherwise, handle the click on the grid
-            self.handle_click_grid(mouse_x, mouse_y)
+            self.handle_click_grid(mouse_x, mouse_y, player)
 
-    def handle_click_grid(self, mouse_x, mouse_y):
+    def handle_click_grid(self, mouse_x, mouse_y, player):
+        if self.preview_piece is None:
+            print("Error: No piece selected for preview.")
+            return
+
         grid_x = (mouse_x - self.x) // Cell.SIZE
         grid_y = (mouse_y - self.y) // Cell.SIZE
 
@@ -148,6 +147,7 @@ class Board:
                 # Validate the position if the user clicks again on the same cell
                 if self.place_piece(self.preview_piece, grid_x, grid_y):
                     print("Piece placed successfully!")
+                    player.remove_piece(self.preview_piece)
                     self.preview_piece = None
                     self.preview_position = None
                 else:
@@ -156,13 +156,11 @@ class Board:
                 # Clear the previous preview and set the new preview position
                 if self.preview_position:
                     self.clear_preview()
-                self.preview_piece = Piece(Colors.PURPLE.value, [(0, 0), (0, 1), (-1, -1), (-1, 0), (1, 0)])
                 self.preview_position = (grid_x, grid_y)
                 self.occupied_cells.clear()
                 for bloc in self.preview_piece.blocs:
                     if self.search_cell(grid_x + bloc[0], grid_y + bloc[1]).color != Colors.WHITE.value:
                         self.occupied_cells.append((grid_x + bloc[0], grid_y + bloc[1]))
-                        print(self.occupied_cells)
 
 
     def clear_preview(self):
@@ -178,15 +176,11 @@ class Board:
                     else:
                         preview_cell.set_color(Colors.PURPLE.value)
 
-
     def handle_click_panel(self, mouse_x, mouse_y, player):
-        for i, piece in enumerate(player.pieces):
-            piece_x = mouse_x + (i % 3) * Piece.SIZE
-            piece_y = mouse_y + (i // 3) * Piece.SIZE
-            rect = pygame.Rect(piece_x, piece_y, Piece.SIZE, Piece.SIZE)
-            if rect.collidepoint(mouse_x, mouse_y):
-                print(f"Pièce sélectionnée : {piece}")
-                return piece
+        piece = player.pieces_panel.get_piece_at(mouse_x, mouse_y)
+        if piece:
+            print(f"Piece selected: {piece}")
+            return piece
         return None
 
     def handle_right_button(self):
