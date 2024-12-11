@@ -116,7 +116,7 @@ class Board:
 
     def __is_first_piece(self):
         for cell in self.cells:
-            if cell.color != Colors.WHITE.value:
+            if cell.color != Colors.WHITE.value and cell.color != self.lighten_color(Colors.PURPLE.value) and cell.color != self.lighten_color(Colors.ORANGE.value):
                 return False
         return True
 
