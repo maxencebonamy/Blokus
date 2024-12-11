@@ -1,6 +1,6 @@
 from game.cell import Cell
-from game.piece import Piece
 from utils.colors import Colors
+from game.piece import Piece
 
 
 class Board:
@@ -11,15 +11,12 @@ class Board:
         self.x = (game.WIDTH - self.compute_size()) // 2
         self.y = (game.HEIGHT - self.compute_size()) // 2
 
+        self.starting_points = [(4, 4), (9, 9)]
         self.cells = []
         for j in range(0, Board.SIZE):
             for i in range(0, Board.SIZE):
-                self.cells.append(Cell(i, j))
-
-        # for _ in range(0, 10):
-        #     self.cells[random.randint(0, len(self.cells) - 1)].set_color(Colors.PURPLE.value)
-        # for _ in range(0, 10):
-        #     self.cells[random.randint(0, len(self.cells) - 1)].set_color(Colors.ORANGE.value)
+                starting_cell = (i, j) in self.starting_points
+                self.cells.append(Cell(i, j, starting_cell))
 
     def compute_size(self):
         return Board.SIZE * Cell.SIZE
