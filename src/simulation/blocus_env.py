@@ -21,6 +21,7 @@ class BlocusEnv(gym.Env):
     def __init__(self):
         super(BlocusEnv, self).__init__()
         self.game = Game()
+        self.number_of_pieces_per_player = len(self.game.orange_player.pieces)
         self.current_player = self.game.orange_player
 
         # Définir l'espace d'observation
@@ -79,8 +80,8 @@ class BlocusEnv(gym.Env):
 
     def _get_observation(self):
         board = self.game.board.get_color_map()
-        orange_pieces = np.zeros(len(self.game.orange_player.pieces), dtype=np.int8)
-        purple_pieces = np.zeros(len(self.game.purple_player.pieces), dtype=np.int8)
+        orange_pieces = np.zeros(self.number_of_pieces_per_player, dtype=np.int8)
+        purple_pieces = np.zeros(self.number_of_pieces_per_player, dtype=np.int8)
 
         for i, piece in enumerate(self.game.orange_player.pieces):
             orange_pieces[i] = 1
