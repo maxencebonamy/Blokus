@@ -4,6 +4,15 @@ from gymnasium import spaces
 import numpy as np
 import pygame
 from game.game import Game
+from game.board import Board
+from gymnasium.envs.registration import register
+
+
+def registerSimulation():
+    register(
+        id='Blocus-v0',
+        entry_point='simulation.blocus_env:BlocusEnv',
+    )
 
 
 class BlocusEnv(gym.Env):
@@ -12,42 +21,78 @@ class BlocusEnv(gym.Env):
     def __init__(self):
         super(BlocusEnv, self).__init__()
         self.game = Game()
-        self.action_space = spaces.Discrete(4)  # Exemple: 4 actions possibles (à adapter selon votre jeu)
-        self.observation_space = spaces.Box(low=0, high=255, shape=(self.game.HEIGHT, self.game.WIDTH, 3), dtype=np.uint8)
+        self.current_player = self.game.orange_player
+
+        # Définir l'espace d'observation
+        self.observation_space = spaces.Dict({
+            'board': spaces.Box(low=0, high=255, shape=(Board.SIZE, Board.SIZE, 3), dtype=np.uint8),
+            'orange_pieces': spaces.MultiBinary(len(self.game.orange_player.pieces)),
+            'purple_pieces': spaces.MultiBinary(len(self.game.purple_player.pieces))
+        })
+
+        # Initialiser l'espace d'action
+        self._update_action_space()
+
+    def _update_action_space(self):
+        num_pieces = len(self.current_player.pieces)
+        print(f"Updating action space: {num_pieces} pieces")
+        self.action_space = spaces.MultiDiscrete([num_pieces, Board.SIZE, Board.SIZE])
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         self.game = Game()
+        self.current_player = self.game.orange_player
+        self._update_action_space()
         return self._get_observation(), {}
 
     def step(self, action):
+        piece_index, x, y = action
+        if piece_index >= len(self.current_player.pieces):
+            return self._get_observation(), -5, True, False, {}
+        print(f"Piece index: {piece_index}, x: {x}, y: {y}")
+        print(f"Nombre de pièces: {len(self.current_player.pieces)}")
+        piece = list(self.current_player.pieces)[piece_index]
+
         reward = 0
-        done = False
+        terminated = False
+        truncated = False
         info = {}
 
-        # Exemple de gestion d'action (à adapter selon votre jeu)
-        if action == 0:
-            self.game.board.handle_right_button()
-        elif action == 1:
-            self.game.board.handle_left_button()
-        elif action == 2:
-            # Implémenter d'autres actions
-            pass
-        elif action == 3:
-            # Implémenter d'autres actions
-            pass
+        if self.game.board.place_piece(piece, x, y):
+            reward = piece.get_points()
+            self.current_player.remove_piece(piece)
+            # self.game.switch_player()
+            self.current_player = self.game.current_player
+            self._update_action_space()
+        else:
+            reward = -5
+
+        if not self.current_player.pieces:
+            terminated = True
 
         observation = self._get_observation()
-        return observation, reward, done, info
+        return observation, reward, terminated, truncated, info
 
     def render(self, mode='human'):
         if mode == 'human':
             self.game.run()
 
     def _get_observation(self):
-        pygame.display.flip()
-        screen = pygame.surfarray.array3d(pygame.display.get_surface())
-        return np.transpose(screen, (1, 0, 2))
+        board = self.game.board.get_color_map()
+        orange_pieces = np.zeros(len(self.game.orange_player.pieces), dtype=np.int8)
+        purple_pieces = np.zeros(len(self.game.purple_player.pieces), dtype=np.int8)
+
+        for i, piece in enumerate(self.game.orange_player.pieces):
+            orange_pieces[i] = 1
+
+        for i, piece in enumerate(self.game.purple_player.pieces):
+            purple_pieces[i] = 1
+
+        return {
+            'board': np.array(board),
+            'orange_pieces': orange_pieces,
+            'purple_pieces': purple_pieces
+        }
 
     def close(self):
         pygame.quit()

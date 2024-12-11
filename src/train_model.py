@@ -1,8 +1,10 @@
 # src/train_model.py
 from stable_baselines3 import PPO
 import gymnasium as gym
+from simulation.blocus_env import registerSimulation
 
-# Assurez-vous que l'environnement est enregistré
+registerSimulation()
+
 
 env = gym.make('Blocus-v0')
 model = PPO('CnnPolicy', env, verbose=1)

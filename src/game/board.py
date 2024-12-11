@@ -24,6 +24,14 @@ class Board:
         self.selected_piece = None
         self.occupied_cells = {}
 
+    def get_color_map(self):
+        colors = []
+        for j in range(0, Board.SIZE):
+            colors.append([])
+            for i in range(0, Board.SIZE):
+                colors[j].append(self.get_cell_color(i, j))
+        return colors
+
     def compute_size(self):
         return Board.SIZE * Cell.SIZE
 
@@ -116,15 +124,12 @@ class Board:
 
         for cell in adjacent_cells:
             if (self.get_cell_color(cell[0], cell[1]) == piece.color):
-                print("ADJACENT", cell, self.get_cell_color(cell[0], cell[1]), piece.color)
                 return False
 
         for cell in diagonals_cells:
             if (self.get_cell_color(cell[0], cell[1]) == piece.color):
-                print("DIAGONAL", cell, self.get_cell_color(cell[0], cell[1]), piece.color)
                 return True
 
-        print("NO NEIGHBOURS")
         return False
 
     def __verify_starting_points(self, x, y, piece):
@@ -144,25 +149,20 @@ class Board:
     def handle_click(self, mouse_x, mouse_y, player):
         # Check if the click is on the left panel
         if 0 <= mouse_x < self.x and 0 <= mouse_y < Board.SIZE * Cell.SIZE:
-            print("Click on the left panel")
             selected_piece = self.handle_click_panel(mouse_x, mouse_y, player)
             if selected_piece:
                 self.preview_piece = selected_piece
-                print(f"Piece selected: {selected_piece}")
         # Check if the click is on the right panel
         elif self.x + self.compute_size() <= mouse_x < self.x + self.compute_size() + self.x and 0 <= mouse_y < Board.SIZE * Cell.SIZE:
-            print("Click on the right panel")
             selected_piece = self.handle_click_panel(mouse_x, mouse_y, player)
             if selected_piece:
                 self.preview_piece = selected_piece
-                print(f"Piece selected: {selected_piece}")
         else:
             # Otherwise, handle the click on the grid
             self.handle_click_grid(mouse_x, mouse_y, player)
 
     def handle_click_grid(self, mouse_x, mouse_y, player):
         if self.preview_piece is None:
-            print("Error: No piece selected for preview.")
             return
 
         grid_x = (mouse_x - self.x) // Cell.SIZE
@@ -172,12 +172,9 @@ class Board:
             if self.preview_position == (grid_x, grid_y):
                 # Validate the position if the user clicks again on the same cell
                 if self.place_piece(self.preview_piece, grid_x, grid_y):
-                    print("Piece placed successfully!")
                     player.remove_piece(self.preview_piece)
                     self.preview_piece = None
                     self.preview_position = None
-                else:
-                    print("Cannot place the piece here.")
             else:
                 # Clear the previous preview and set the new preview position
                 if self.preview_position:
@@ -188,7 +185,6 @@ class Board:
                     cell = self.search_cell(grid_x + bloc[0], grid_y + bloc[1])
                     if cell is not None and cell.color != Colors.WHITE.value:
                         self.occupied_cells[(grid_x + bloc[0], grid_y + bloc[1])] = cell.color
-                        print(self.occupied_cells)
 
     def clear_preview(self):
         if self.preview_piece and self.preview_position:
@@ -206,7 +202,6 @@ class Board:
     def handle_click_panel(self, mouse_x, mouse_y, player):
         piece = player.pieces_panel.get_piece_at(mouse_x, mouse_y)
         if piece:
-            print(f"Piece selected: {piece}")
             return piece
         return None
 
@@ -219,7 +214,6 @@ class Board:
                 cell = self.search_cell(self.preview_position[0] + bloc[0], self.preview_position[1] + bloc[1])
                 if cell is not None and cell.color != Colors.WHITE.value:
                     self.occupied_cells[(self.preview_position[0] + bloc[0], self.preview_position[1] + bloc[1])] = cell.color
-                    print(self.occupied_cells)
 
     def handle_left_button(self):
         if self.preview_piece:
@@ -230,4 +224,3 @@ class Board:
                 cell = self.search_cell(self.preview_position[0] + bloc[0], self.preview_position[1] + bloc[1])
                 if cell is not None and cell.color != Colors.WHITE.value:
                     self.occupied_cells[(self.preview_position[0] + bloc[0], self.preview_position[1] + bloc[1])] = cell.color
-                    print(self.occupied_cells)

@@ -1,9 +1,8 @@
 # src/run_simulation.py
 import gymnasium as gym
+from simulation.blocus_env import registerSimulation
 
-# Assurez-vous que l'environnement est enregistré
-import simulation
-
+registerSimulation()
 env = gym.make('Blocus-v0')
 
 observation = env.reset()
