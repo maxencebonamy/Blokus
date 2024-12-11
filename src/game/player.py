@@ -59,3 +59,6 @@ class Player:
             self.pieces.remove(piece)
             return True
         return False
+
+    def get_available_pieces(self):
+        return self.pieces
