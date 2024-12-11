@@ -1,7 +1,6 @@
 from game.cell import Cell
 from game.piece import Piece
 from utils.colors import Colors
-import random
 
 
 class Board:
@@ -31,75 +30,68 @@ class Board:
     def place_piece(self, piece, x, y):
         for bloc in piece.blocs:
 
-            # Cell is out of the board
-            if (x + bloc[0] < 0 or x + bloc[0] > Board.SIZE or y + bloc[1] < 0 or y + bloc[1] > Board.SIZE):
-                return False
-            # Cell is not empty
-            cell = self.search_cell(x + bloc[0], y + bloc[1])
-            if cell.color != Colors.WHITE.value:
+            # Cell is out of the board [CHECK]
+            if (x + bloc[0] < 0 or x + bloc[0] >= Board.SIZE or y + bloc[1] < 0 or y + bloc[1] >= Board.SIZE):
                 return False
 
-        if(not self.__verify_place(piece, x, y)):
+            # Cell is not empty [CHECK]
+            cell = self.search_cell(x + bloc[0], y + bloc[1])
+            if cell.color != Colors.WHITE.value and cell.color != Colors.BLUE.value and cell.color != Colors.GREEN.value:
+                return False
+
+        if (self.__verify_neighbour_cells(x, y, piece) == False and self.__is_first_piece() == False):
             return False
 
         for bloc in piece.blocs:
             cell = self.search_cell(x + bloc[0], y + bloc[1])
             cell.set_color(piece.color)
+
         return True
 
-    def __verify_place(self, piece, x, y):
+    def __verify_neighbour_cells(self, x, y, piece):
         adjacent_cells = []
+        temp_diagonal_cells = []
         diagonals_cells = []
 
-        for _ in piece.blocs:
-            adjacents, diagonals = self.__neighbour_cells(x, y)
-            adjacent_cells += adjacents
-            diagonals_cells += diagonals
+        for bloc in piece.blocs:
+            for i in range(-1, 2):
+                for j in range(-1, 2):
+                    if ((i + bloc[0], j + bloc[1]) in piece.blocs):
+                        continue
+                    if (i == 0 and j == 0):
+                        continue
+                    if (x + bloc[0] + i < 0 or x + bloc[0] + i >= Board.SIZE or y + bloc[1] + j < 0 or y + bloc[1] + j >= Board.SIZE):
+                        continue
+                    if (i == 0 or j == 0):
+                        if ((x + bloc[0] + i, y + bloc[1] + j) not in adjacent_cells):
+                            adjacent_cells.append((x + bloc[0] + i, y + bloc[1] + j))
+                    else:
+                        if ((x + bloc[0] + i, y + bloc[1] + j) not in temp_diagonal_cells):
+                            temp_diagonal_cells.append((x + bloc[0] + i, y + bloc[1] + j))
 
-        # Check if the adjacent cells don't have the same color
+        for cell in temp_diagonal_cells:
+            if (cell in adjacent_cells):
+                continue
+            elif (cell not in diagonals_cells):
+                diagonals_cells.append(cell)
+
         for cell in adjacent_cells:
-            if self.search_cell(cell[0], cell[1]).color == piece.color:
-                print('NOT- adjacent same color')
+            cell = self.search_cell(cell[0], cell[1])
+            if (cell.color == piece.color):
                 return False
 
-        # Check if one of diagonals cells have the same color
         for cell in diagonals_cells:
-            if self.search_cell(cell[0], cell[1]).color == piece.color:
-                print('OK - diagonal same color')
+            cell = self.search_cell(cell[0], cell[1])
+            if (cell.color == piece.color):
                 return True
 
-        empty = True
-        for cell in self.cells :
-            if(cell.color != Colors.WHITE.value):
-                empty = False
-                break
-        if(empty):
-            print('OK - first piece')
-            return True
-        print('NOT- no diagonal same color')
         return False
 
-
-    def __neighbour_cells(self , x, y):
-        adjacents = []
-        diagonals = []
-
-        for i in range(-1, 2):
-            for j in range(-1, 2):
-                if i == 0 and j == 0:
-                    continue
-                if (x + i < 0 or x + i > Board.SIZE or y + j < 0 or y + j > Board.SIZE):
-                    continue
-                if i == 0 or j == 0:
-                    adjacents.append((x + i, y + j))
-                else:
-                    diagonals.append((x + i, y + j))
-        return (adjacents, diagonals)
-
-
-
-
-
+    def __is_first_piece(self):
+        for cell in self.cells:
+            if cell.color != Colors.WHITE.value:
+                return False
+        return True
 
     def handle_click(self, mouse_x, mouse_y):
         grid_x = (mouse_x - self.x) // Cell.SIZE
@@ -108,4 +100,4 @@ class Board:
         if 0 <= grid_x < Board.SIZE and 0 <= grid_y < Board.SIZE:
             cell = self.search_cell(grid_x, grid_y)
             if cell.color == Colors.WHITE.value:
-                print(self.place_piece(Piece(Colors.PURPLE.value, [(0, 0), (0, -1), (0, 1), (-1, 0), (1, 0)]), grid_x, grid_y))
+                self.place_piece(Piece(Colors.PURPLE.value, [(0, 0), (0, -1), (0, 1), (-1, 0), (1, 0)]), grid_x, grid_y)

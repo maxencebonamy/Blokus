@@ -20,3 +20,6 @@ class Cell:
         display_rect = self.rect.move(board_x, board_y)
         pygame.draw.rect(screen, self.color, display_rect)
         pygame.draw.rect(screen, Colors.BLACK.value, display_rect, 1)
+
+    def __str__(self):
+        return f"Cell({self.x}, {self.y})"
