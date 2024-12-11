@@ -20,6 +20,13 @@ class Game:
         self.purple_player = Player(Colors.PURPLE.value)
 
         self.board = Board(self)
+        self.current_player = self.orange_player
+
+    def switch_player(self):
+        if self.current_player == self.orange_player:
+            self.current_player = self.purple_player
+        else:
+            self.current_player = self.orange_player
 
     def run(self):
         running = True

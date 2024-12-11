@@ -17,11 +17,14 @@ class Cell:
     def set_color(self, color):
         self.color = color
 
+    def is_empty(self):
+        return self.color != Colors.PURPLE.value and self.color != Colors.ORANGE.value
+
     def draw(self, screen, board_x, board_y):
         display_rect = self.rect.move(board_x, board_y)
         pygame.draw.rect(screen, self.color, display_rect)
         pygame.draw.rect(screen, Colors.BLACK.value, display_rect, 1)
-        if self.starting_cell and self.color == Colors.WHITE.value:
+        if self.starting_cell and self.color != Colors.PURPLE.value and self.color != Colors.ORANGE.value:
             pygame.draw.circle(screen, Colors.BLACK.value, display_rect.center, Cell.SIZE // 4, 1)
 
     def __str__(self):

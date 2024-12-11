@@ -44,4 +44,4 @@ class Piece:
         for x, y in self.blocs:
             result[y - min_y][x - min_x] = "■"
 
-        return "\n".join("".join(row) for row in result)
+        return "\n" + "\n".join("".join(row) for row in result)

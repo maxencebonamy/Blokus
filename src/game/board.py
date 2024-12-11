@@ -10,6 +10,7 @@ class Board:
     SIZE = 14
 
     def __init__(self, game):
+        self.game = game
         self.x = (game.WIDTH - self.compute_size()) // 2
         self.y = (game.HEIGHT - self.compute_size()) // 2
 
@@ -23,7 +24,7 @@ class Board:
         self.preview_piece = None
         self.preview_position = None
         self.selected_piece = None
-        self.occupied_cells = []
+        self.occupied_cells = {}
 
     def compute_size(self):
         return Board.SIZE * Cell.SIZE
@@ -49,6 +50,11 @@ class Board:
         index = y * Board.SIZE + x
         return self.cells[index]
 
+    def get_cell_color(self, x, y):
+        if (x, y) in self.occupied_cells.keys():
+            return self.occupied_cells[(x, y)]
+        return self.search_cell(x, y).color
+
     def place_piece(self, piece, x, y):
         for bloc in piece.blocs:
 
@@ -58,19 +64,28 @@ class Board:
 
             # Cell is not empty [CHECK]
             cell = self.search_cell(x + bloc[0], y + bloc[1])
-            if cell.color != Colors.WHITE.value and cell.color != self.lighten_color(piece.color):
+            if not cell.is_empty() or (x + bloc[0], y + bloc[1]) in self.occupied_cells.keys():
                 return False
 
-        if (self.__verify_neighbour_cells(x, y, piece) == False and self.__is_first_piece() == False):
+        if (not self.__verify_starting_points(x, y, piece) or not self.__verify_neighbour_cells(x, y, piece)):
             return False
 
         for bloc in piece.blocs:
             cell = self.search_cell(x + bloc[0], y + bloc[1])
             cell.set_color(piece.color)
 
+        self.game.switch_player()
         return True
 
     def __verify_neighbour_cells(self, x, y, piece):
+        not_covered_points = []
+        for starting_point in self.starting_points:
+            cell = self.search_cell(starting_point[0], starting_point[1])
+            if cell.is_empty():
+                not_covered_points.append(starting_point)
+        if len(not_covered_points) > 0:
+            return True
+
         adjacent_cells = []
         temp_diagonal_cells = []
         diagonals_cells = []
@@ -98,24 +113,31 @@ class Board:
                 diagonals_cells.append(cell)
 
         for cell in adjacent_cells:
-            cell = self.search_cell(cell[0], cell[1])
-            if (cell.color == piece.color):
+            if (self.get_cell_color(cell[0], cell[1]) == piece.color):
+                print("ADJACENT", cell, self.get_cell_color(cell[0], cell[1]), piece.color)
                 return False
 
         for cell in diagonals_cells:
-            cell = self.search_cell(cell[0], cell[1])
-            if (cell.color == piece.color):
+            if (self.get_cell_color(cell[0], cell[1]) == piece.color):
+                print("DIAGONAL", cell, self.get_cell_color(cell[0], cell[1]), piece.color)
                 return True
 
+        print("NO NEIGHBOURS")
         return False
 
-    def __is_first_piece(self):
-        for cell in self.cells:
-            if cell.color != Colors.WHITE.value and cell.color != self.lighten_color(
-                    Colors.PURPLE.value) and cell.color != self.lighten_color(
-                    Colors.ORANGE.value):
-                return False
-        return True
+    def __verify_starting_points(self, x, y, piece):
+        not_covered_points = []
+        for starting_point in self.starting_points:
+            cell = self.search_cell(starting_point[0], starting_point[1])
+            if cell.is_empty():
+                not_covered_points.append(starting_point)
+        if len(not_covered_points) == 0:
+            return True
+
+        for bloc in piece.blocs:
+            if (x + bloc[0], y + bloc[1]) in not_covered_points:
+                return True
+        return False
 
     def handle_click(self, mouse_x, mouse_y, player):
         # Check if the click is on the left panel
@@ -153,12 +175,13 @@ class Board:
                 # Clear the previous preview and set the new preview position
                 if self.preview_position:
                     self.clear_preview()
-                self.preview_piece = Piece(Colors.PURPLE.value, [(0, 0), (0, 1), (-1, -1), (-1, 0), (1, 0)])
+                self.preview_piece = Piece(self.game.current_player.color, [(0, 0), (0, 1), (-1, -1), (-1, 0), (1, 0)])
                 self.preview_position = (grid_x, grid_y)
                 self.occupied_cells.clear()
                 for bloc in self.preview_piece.blocs:
-                    if self.search_cell(grid_x + bloc[0], grid_y + bloc[1]).color != Colors.WHITE.value:
-                        self.occupied_cells.append((grid_x + bloc[0], grid_y + bloc[1]))
+                    cell = self.search_cell(grid_x + bloc[0], grid_y + bloc[1])
+                    if cell.color != Colors.WHITE.value:
+                        self.occupied_cells[(grid_x + bloc[0], grid_y + bloc[1])] = cell.color
                         print(self.occupied_cells)
 
     def clear_preview(self):
@@ -169,10 +192,10 @@ class Board:
                 preview_y = y + bloc[1]
                 if 0 <= preview_x < Board.SIZE and 0 <= preview_y < Board.SIZE:
                     preview_cell = self.search_cell(preview_x, preview_y)
-                    if (preview_x, preview_y) not in self.occupied_cells:
+                    if (preview_x, preview_y) not in self.occupied_cells.keys():
                         preview_cell.set_color(Colors.WHITE.value)
                     else:
-                        preview_cell.set_color(Colors.PURPLE.value)
+                        preview_cell.set_color(self.occupied_cells.get((preview_x, preview_y)))
 
     def handle_click_panel(self, mouse_x, mouse_y, player):
         for i, piece in enumerate(player.pieces):
@@ -190,9 +213,9 @@ class Board:
             self.preview_piece.rotate(True)
             self.occupied_cells.clear()
             for bloc in self.preview_piece.blocs:
-                if self.search_cell(self.preview_position[0] + bloc[0],
-                                    self.preview_position[1] + bloc[1]).color != Colors.WHITE.value:
-                    self.occupied_cells.append((self.preview_position[0] + bloc[0], self.preview_position[1] + bloc[1]))
+                cell = self.search_cell(self.preview_position[0] + bloc[0], self.preview_position[1] + bloc[1])
+                if cell.color != Colors.WHITE.value:
+                    self.occupied_cells[(self.preview_position[0] + bloc[0], self.preview_position[1] + bloc[1])] = cell.color
                     print(self.occupied_cells)
 
     def handle_left_button(self):
@@ -201,6 +224,7 @@ class Board:
             self.preview_piece.rotate(False)
             self.occupied_cells.clear()
             for bloc in self.preview_piece.blocs:
-                if self.search_cell(self.preview_position[0] + bloc[0], self.preview_position[1] + bloc[1]).color != Colors.WHITE.value:
-                    self.occupied_cells.append((self.preview_position[0] + bloc[0], self.preview_position[1] + bloc[1]))
+                cell = self.search_cell(self.preview_position[0] + bloc[0], self.preview_position[1] + bloc[1])
+                if cell.color != Colors.WHITE.value:
+                    self.occupied_cells[(self.preview_position[0] + bloc[0], self.preview_position[1] + bloc[1])] = cell.color
                     print(self.occupied_cells)
