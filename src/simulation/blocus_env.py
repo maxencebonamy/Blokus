@@ -37,9 +37,18 @@ class BlocusEnv(gym.Env):
     def _update_action_space(self):
         num_pieces = len(self.current_player.pieces)
         print(f"Updating action space: {num_pieces} pieces")
+        if self.current_player.color == (127, 44, 203):
+            color = "PURPLE"
+        else :
+            color = "ORANGE"
+        print(f"Joueur: {color}")
+        #print(f"Piece index: {self.piece_index}, x: {x}, y: {y}")
+        print(f"Nombre de pièces: {len(self.current_player.pieces)}")
+        print("-----------------------\n")
         self.action_space = spaces.MultiDiscrete([num_pieces, Board.SIZE, Board.SIZE])
 
     def reset(self, seed=None, options=None):
+        print("Reset")
         super().reset(seed=seed)
         self.game = Game()
         self.current_player = self.game.orange_player
@@ -49,9 +58,10 @@ class BlocusEnv(gym.Env):
     def step(self, action):
         piece_index, x, y = action
         if piece_index >= len(self.current_player.pieces):
+            return self._get_observation(), -5, False, False, {}
+
+        if len(self.current_player.pieces) == 0:
             return self._get_observation(), -5, True, False, {}
-        print(f"Piece index: {piece_index}, x: {x}, y: {y}")
-        print(f"Nombre de pièces: {len(self.current_player.pieces)}")
         piece = list(self.current_player.pieces)[piece_index]
 
         reward = 0
@@ -62,7 +72,6 @@ class BlocusEnv(gym.Env):
         if self.game.board.place_piece(piece, x, y):
             reward = piece.get_points()
             self.current_player.remove_piece(piece)
-            # self.game.switch_player()
             self.current_player = self.game.current_player
             self._update_action_space()
         else:
